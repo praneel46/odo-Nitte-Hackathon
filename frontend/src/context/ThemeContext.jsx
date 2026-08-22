@@ -12,15 +12,19 @@ export const ThemeProvider = ({ children }) => {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
-      localStorage.setItem('dayflow_theme', 'dark');
+      root.style.colorScheme = 'dark';
     } else {
       root.classList.remove('dark');
-      localStorage.setItem('dayflow_theme', 'light');
+      root.style.colorScheme = 'light';
     }
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme((prev) => {
+      const nextTheme = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('dayflow_theme', nextTheme);
+      return nextTheme;
+    });
   };
 
   return (
