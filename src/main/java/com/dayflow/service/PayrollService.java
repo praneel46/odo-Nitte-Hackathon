@@ -7,6 +7,7 @@ import com.dayflow.entity.EmployeeProfile;
 import com.dayflow.entity.Payroll;
 import com.dayflow.entity.SalarySlip;
 import com.dayflow.entity.User;
+import com.dayflow.enums.NotificationType;
 import com.dayflow.exception.ForbiddenException;
 import com.dayflow.exception.ResourceNotFoundException;
 import com.dayflow.repository.EmployeeProfileRepository;
@@ -30,13 +31,15 @@ public class PayrollService {
     private final UserRepository userRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
 
-    public PayrollService(PayrollRepository payrollRepository, SalarySlipRepository salarySlipRepository, UserRepository userRepository, EmployeeProfileRepository employeeProfileRepository, AuditLogService auditLogService) {
+    public PayrollService(PayrollRepository payrollRepository, SalarySlipRepository salarySlipRepository, UserRepository userRepository, EmployeeProfileRepository employeeProfileRepository, AuditLogService auditLogService, NotificationService notificationService) {
         this.payrollRepository = payrollRepository;
         this.salarySlipRepository = salarySlipRepository;
         this.userRepository = userRepository;
         this.employeeProfileRepository = employeeProfileRepository;
         this.auditLogService = auditLogService;
+        this.notificationService = notificationService;
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +112,13 @@ public class PayrollService {
                 payroll.getId(),
                 "Updated salary structure for employee " + user.getId() + " to net: " + net,
                 "127.0.0.1"
+        );
+
+        notificationService.createNotification(
+                user.getId(),
+                "Salary Structure Updated",
+                "Your payroll structure has been updated. New net monthly compensation: $" + net + " (Effective: " + request.getEffectiveDate() + ").",
+                NotificationType.INFO
         );
 
         return mapToDto(payroll);
