@@ -5,6 +5,7 @@ import com.dayflow.entity.Document;
 import com.dayflow.entity.EmployeeProfile;
 import com.dayflow.entity.User;
 import com.dayflow.enums.DocumentType;
+import com.dayflow.enums.NotificationType;
 import com.dayflow.exception.BadRequestException;
 import com.dayflow.exception.ForbiddenException;
 import com.dayflow.exception.ResourceNotFoundException;
@@ -35,15 +36,17 @@ public class DocumentService {
     private final UserRepository userRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
 
     @Value("${app.upload.dir:./uploads/documents}")
     private String uploadDir;
 
-    public DocumentService(DocumentRepository documentRepository, UserRepository userRepository, EmployeeProfileRepository employeeProfileRepository, AuditLogService auditLogService) {
+    public DocumentService(DocumentRepository documentRepository, UserRepository userRepository, EmployeeProfileRepository employeeProfileRepository, AuditLogService auditLogService, NotificationService notificationService) {
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
         this.employeeProfileRepository = employeeProfileRepository;
         this.auditLogService = auditLogService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -97,6 +100,13 @@ public class DocumentService {
         document = documentRepository.save(document);
 
         auditLogService.logAction(userId, "UPLOAD_DOCUMENT", "Document", document.getId(), "Uploaded document: " + document.getDocumentName(), "127.0.0.1");
+
+        notificationService.createNotification(
+                userId,
+                "Document Uploaded",
+                "Document '" + document.getDocumentName() + "' (" + document.getDocumentType() + ") has been uploaded successfully.",
+                NotificationType.INFO
+        );
 
         return mapToDto(document);
     }

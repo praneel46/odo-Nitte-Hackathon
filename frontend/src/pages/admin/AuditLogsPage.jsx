@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auditLogsService } from '../../services/auditLogs';
 import { TableSkeleton } from '../../components/ui/Skeleton';
 import { Badge } from '../../components/ui/Badge';
-import { ShieldAlert, Terminal } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 
 export const AuditLogsPage = () => {
   const [logs, setLogs] = useState([]);
@@ -23,7 +23,7 @@ export const AuditLogsPage = () => {
         </div>
         <div>
           <h2 className="text-xl font-bold text-slate-900">System Security Audit Logs</h2>
-          <p className="text-xs text-slate-500 font-medium">Read-only immutable governance event trail</p>
+          <p className="text-xs text-slate-500 font-medium">Read-only immutable governance event trail for compliance</p>
         </div>
       </div>
 
@@ -36,8 +36,10 @@ export const AuditLogsPage = () => {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   <th className="p-4">Log ID</th>
-                  <th className="p-4">Action Trigger</th>
+                  <th className="p-4">Action</th>
                   <th className="p-4">User Account</th>
+                  <th className="p-4">Target Entity</th>
+                  <th className="p-4">Details</th>
                   <th className="p-4">IP Address</th>
                   <th className="p-4">Timestamp</th>
                 </tr>
@@ -50,6 +52,10 @@ export const AuditLogsPage = () => {
                       <Badge variant="purple">{log.action}</Badge>
                     </td>
                     <td className="p-4 font-medium text-slate-700">{log.userEmail}</td>
+                    <td className="p-4 font-semibold text-slate-900">
+                      {log.entityName ? `${log.entityName} #${log.entityId || ''}` : 'N/A'}
+                    </td>
+                    <td className="p-4 text-slate-600 max-w-xs truncate">{log.details || '-'}</td>
                     <td className="p-4 font-mono text-slate-500">{log.ipAddress}</td>
                     <td className="p-4 text-slate-500">{log.timestamp}</td>
                   </tr>

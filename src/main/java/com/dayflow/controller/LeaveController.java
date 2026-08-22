@@ -45,6 +45,14 @@ public class LeaveController {
         return ResponseEntity.ok(leaveService.getLeaveInsights());
     }
 
+    @GetMapping("/preview")
+    public ResponseEntity<LeavePreviewDto> getLeavePreview(
+            @RequestParam("leaveType") com.dayflow.enums.LeaveType leaveType,
+            @RequestParam("startDate") @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate startDate,
+            @RequestParam("endDate") @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate endDate) {
+        return ResponseEntity.ok(leaveService.getLeavePreview(leaveType, startDate, endDate));
+    }
+
     @PutMapping("/{id}/approve")
     public ResponseEntity<LeaveRequestDto> approveLeave(@PathVariable("id") Long id,
                                                         @RequestBody(required = false) ApproveRejectLeaveRequest request) {

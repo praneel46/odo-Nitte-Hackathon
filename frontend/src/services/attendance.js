@@ -56,15 +56,48 @@ export const attendanceService = {
 
   getTimelineToday: async () => {
     try {
-      return await apiFetch('/attendance/timeline/today');
+      const data = await apiFetch('/attendance/timeline/today');
+      if (!data) return [];
+
+      const events = [];
+      const fmtTime = (t) => {
+        if (!t) return '';
+        if (typeof t === 'string' && t.includes('T')) {
+          return new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        return String(t);
+      };
+
+      if (data.checkInTime) {
+        events.push({ time: fmtTime(data.checkInTime), type: 'CHECK_IN', label: 'Checked In' });
+      }
+
+      if (data.breaks && Array.isArray(data.breaks)) {
+        data.breaks.forEach((b) => {
+          if (b.startTime) {
+            events.push({
+              time: fmtTime(b.startTime),
+              type: 'BREAK_START',
+              label: `${b.breakType || 'Break'} Started`,
+            });
+          }
+          if (b.endTime) {
+            events.push({
+              time: fmtTime(b.endTime),
+              type: 'BREAK_END',
+              label: `${b.breakType || 'Break'} Ended`,
+            });
+          }
+        });
+      }
+
+      if (data.checkOutTime) {
+        events.push({ time: fmtTime(data.checkOutTime), type: 'CHECK_OUT', label: 'Checked Out' });
+      }
+
+      return events;
     } catch (err) {
-      return [
-        { time: '09:02 AM', type: 'CHECK_IN', label: 'Checked In' },
-        { time: '11:15 AM', type: 'BREAK_START', label: 'Break Started (Tea)' },
-        { time: '11:30 AM', type: 'BREAK_END', label: 'Break Ended' },
-        { time: '01:02 PM', type: 'BREAK_START', label: 'Lunch Started' },
-        { time: '01:45 PM', type: 'BREAK_END', label: 'Lunch Ended' }
-      ];
+      return [];
     }
   }
 };
