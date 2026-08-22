@@ -31,7 +31,7 @@ import { SystemSettingsPage } from './pages/admin/SystemSettingsPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <ToastProvider>
         <AuthProvider>
           <Routes>
