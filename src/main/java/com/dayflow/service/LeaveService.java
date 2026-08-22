@@ -7,6 +7,7 @@ import com.dayflow.entity.LeaveRequest;
 import com.dayflow.entity.User;
 import com.dayflow.enums.LeaveStatus;
 import com.dayflow.enums.LeaveType;
+import com.dayflow.enums.NotificationType;
 import com.dayflow.exception.BadRequestException;
 import com.dayflow.exception.ForbiddenException;
 import com.dayflow.exception.ResourceNotFoundException;
@@ -32,13 +33,15 @@ public class LeaveService {
     private final UserRepository userRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
 
-    public LeaveService(LeaveRequestRepository leaveRequestRepository, LeaveBalanceRepository leaveBalanceRepository, UserRepository userRepository, EmployeeProfileRepository employeeProfileRepository, AuditLogService auditLogService) {
+    public LeaveService(LeaveRequestRepository leaveRequestRepository, LeaveBalanceRepository leaveBalanceRepository, UserRepository userRepository, EmployeeProfileRepository employeeProfileRepository, AuditLogService auditLogService, NotificationService notificationService) {
         this.leaveRequestRepository = leaveRequestRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.userRepository = userRepository;
         this.employeeProfileRepository = employeeProfileRepository;
         this.auditLogService = auditLogService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -127,6 +130,13 @@ public class LeaveService {
 
         auditLogService.logAction(adminId, "APPROVE_LEAVE", "LeaveRequest", leaveRequest.getId(), "Approved leave ID " + id, "127.0.0.1");
 
+        notificationService.createNotification(
+                leaveRequest.getEmployee().getId(),
+                "Leave Request Approved",
+                "Your " + leaveRequest.getLeaveType() + " leave request from " + leaveRequest.getStartDate() + " to " + leaveRequest.getEndDate() + " has been approved.",
+                NotificationType.SUCCESS
+        );
+
         return mapToDto(leaveRequest);
     }
 
@@ -164,7 +174,52 @@ public class LeaveService {
 
         auditLogService.logAction(adminId, "REJECT_LEAVE", "LeaveRequest", leaveRequest.getId(), "Rejected leave ID " + id, "127.0.0.1");
 
+        notificationService.createNotification(
+                leaveRequest.getEmployee().getId(),
+                "Leave Request Rejected",
+                "Your " + leaveRequest.getLeaveType() + " leave request was rejected. Comment: " + (request != null && request.getAdminComment() != null ? request.getAdminComment() : "No comment provided."),
+                NotificationType.WARNING
+        );
+
         return mapToDto(leaveRequest);
+    }
+
+    @Transactional(readOnly = true)
+    public LeavePreviewDto getLeavePreview(LeaveType leaveType, LocalDate startDate, LocalDate endDate) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
+            return new LeavePreviewDto(leaveType, 0, 0, 0, 100.0, 0, false, "Invalid or missing date range.");
+        }
+
+        double requestedDays = calculateWorkingDays(startDate, endDate);
+        if (requestedDays <= 0) {
+            return new LeavePreviewDto(leaveType, 0, 0, 0, 100.0, 0, false, "Selected dates contain no working days (weekends excluded).");
+        }
+
+        User user = userRepository.findById(userId).orElseThrow();
+        int year = startDate.getYear();
+
+        double currentBalance = 0;
+        if (leaveType == LeaveType.UNPAID) {
+            currentBalance = 30.0;
+        } else {
+            LeaveBalance balance = leaveBalanceRepository.findByEmployeeAndYearAndLeaveType(user, year, leaveType)
+                    .orElseGet(() -> createDefaultBalance(user, year, leaveType));
+            currentBalance = Math.max(0, balance.getTotalEntitled() - balance.getUsed() - balance.getPending());
+        }
+
+        double remainingBalance = currentBalance - requestedDays;
+        boolean valid = remainingBalance >= 0 || leaveType == LeaveType.UNPAID;
+        String message = valid ? "Sufficient leave quota available." : "Insufficient leave balance.";
+
+        List<LeaveRequest> approvedInRange = leaveRequestRepository.findAllApprovedLeavesInRange(startDate, endDate);
+        long overlappingCount = approvedInRange.size();
+        long totalEmployees = userRepository.count();
+        double availability = totalEmployees > 0 
+                ? Math.round(((double)(totalEmployees - overlappingCount) / totalEmployees) * 100.0 * 100.0) / 100.0 
+                : 100.0;
+
+        return new LeavePreviewDto(leaveType, requestedDays, currentBalance, Math.max(0, remainingBalance), availability, overlappingCount, valid, message);
     }
 
     @Transactional(readOnly = true)

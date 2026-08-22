@@ -15,13 +15,28 @@ export const leaveService = {
 
   getMyBalances: async () => {
     try {
-      return await apiFetch('/leaves/balance/me');
+      const data = await apiFetch('/leaves/balance/me');
+      return (data || []).map((b) => ({
+        ...b,
+        totalDays: b.totalEntitled ?? b.totalDays,
+        usedDays: b.used ?? b.usedDays,
+        remainingDays: b.totalEntitled !== undefined ? Math.max(0, b.totalEntitled - b.used - b.pending) : b.remainingDays,
+      }));
     } catch (err) {
       return [
-        { leaveType: 'PAID', totalDays: 20, usedDays: 4, remainingDays: 16 },
-        { leaveType: 'SICK', totalDays: 10, usedDays: 2, remainingDays: 8 },
-        { leaveType: 'UNPAID', totalDays: 15, usedDays: 0, remainingDays: 15 }
+        { leaveType: 'PAID', totalDays: 15, usedDays: 0, remainingDays: 15 },
+        { leaveType: 'SICK', totalDays: 10, usedDays: 0, remainingDays: 10 },
+        { leaveType: 'UNPAID', totalDays: 30, usedDays: 0, remainingDays: 30 }
       ];
+    }
+  },
+
+  getLeavePreview: async (leaveType, startDate, endDate) => {
+    try {
+      const params = new URLSearchParams({ leaveType, startDate, endDate });
+      return await apiFetch(`/leaves/preview?${params.toString()}`);
+    } catch (err) {
+      return null;
     }
   },
 
