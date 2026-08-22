@@ -7,7 +7,7 @@ import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { useToast } from '../../components/ui/Toast';
-import { Upload, Download, Trash2, FileText, FolderOpen } from 'lucide-react';
+import { Upload, Download, Trash2, FileText } from 'lucide-react';
 
 export const DocumentsPage = () => {
   const [docs, setDocs] = useState([]);
@@ -52,6 +52,27 @@ export const DocumentsPage = () => {
       showToast(err.message || 'Failed to upload document', 'error');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDownload = async (doc) => {
+    try {
+      const token = localStorage.getItem('dayflow_token');
+      const response = await fetch(`/api/documents/${doc.id}/download`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.documentName || 'document';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast(`Downloaded ${doc.documentName}`, 'success');
+    } catch (err) {
+      showToast(err.message || 'Download failed', 'error');
     }
   };
 
@@ -105,9 +126,9 @@ export const DocumentsPage = () => {
                       <Badge variant="purple">{doc.documentType}</Badge>
                     </td>
                     <td className="p-4 text-slate-500">{doc.uploadDate}</td>
-                    <td className="p-4 font-semibold text-slate-700">{doc.fileSize}</td>
+                    <td className="p-4 font-semibold text-slate-700">{doc.fileSizeFormatted || doc.fileSize}</td>
                     <td className="p-4 flex gap-2">
-                      <Button variant="secondary" size="sm" onClick={() => showToast(`Downloading ${doc.documentName}...`, 'info')}>
+                      <Button variant="secondary" size="sm" onClick={() => handleDownload(doc)}>
                         <Download className="w-3.5 h-3.5" />
                       </Button>
                       <Button variant="danger" size="sm" onClick={() => handleDelete(doc.id)}>

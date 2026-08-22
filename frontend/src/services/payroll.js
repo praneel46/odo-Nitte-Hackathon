@@ -25,18 +25,35 @@ export const payrollService = {
 
   getMySlips: async () => {
     try {
-      return await apiFetch('/payroll/slips/me');
+      const data = await apiFetch('/payroll/slips/me');
+      return (data || []).map((s) => ({
+        ...s,
+        month: s.payPeriod || s.month,
+        issueDate: s.generatedAt ? String(s.generatedAt).slice(0, 10) : s.issueDate,
+        baseSalary: s.baseSalarySnapshot ?? s.baseSalary,
+        allowances: s.allowancesSnapshot ?? s.allowances,
+        deductions: s.deductionsSnapshot ?? s.deductions,
+        netSalary: s.netSalarySnapshot ?? s.netSalary,
+      }));
     } catch (err) {
       return [
-        { id: 1, month: 'July 2026', issueDate: '2026-07-31', baseSalary: 95000.00, allowances: 15000.00, deductions: 8000.00, netSalary: 102000.00 },
-        { id: 2, month: 'June 2026', issueDate: '2026-06-30', baseSalary: 95000.00, allowances: 15000.00, deductions: 8000.00, netSalary: 102000.00 },
-        { id: 3, month: 'May 2026', issueDate: '2026-05-31', baseSalary: 90000.00, allowances: 12000.00, deductions: 7500.00, netSalary: 94500.00 }
+        { id: 1, month: '2026-07', issueDate: '2026-07-31', baseSalary: 95000.00, allowances: 15000.00, deductions: 8000.00, netSalary: 102000.00 },
+        { id: 2, month: '2026-06', issueDate: '2026-06-30', baseSalary: 95000.00, allowances: 15000.00, deductions: 8000.00, netSalary: 102000.00 }
       ];
     }
   },
 
   getEmployeeSlips: async (employeeId) => {
-    return await apiFetch(`/payroll/slips/${employeeId}`);
+    const data = await apiFetch(`/payroll/slips/${employeeId}`);
+    return (data || []).map((s) => ({
+      ...s,
+      month: s.payPeriod || s.month,
+      issueDate: s.generatedAt ? String(s.generatedAt).slice(0, 10) : s.issueDate,
+      baseSalary: s.baseSalarySnapshot ?? s.baseSalary,
+      allowances: s.allowancesSnapshot ?? s.allowances,
+      deductions: s.deductionsSnapshot ?? s.deductions,
+      netSalary: s.netSalarySnapshot ?? s.netSalary,
+    }));
   },
 
   downloadSlip: async (slipId) => {
