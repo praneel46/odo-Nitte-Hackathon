@@ -1,6 +1,6 @@
 /* Central API Layer using Native fetch() */
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '') + '/api';
 
 export const getToken = () => localStorage.getItem('dayflow_token');
 export const setToken = (token) => localStorage.setItem('dayflow_token', token);
