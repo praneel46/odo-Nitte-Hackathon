@@ -8,7 +8,9 @@ import com.dayflow.entity.EmployeeProfile;
 import com.dayflow.entity.User;
 import com.dayflow.entity.WorkBreak;
 import com.dayflow.enums.AttendanceStatus;
+import com.dayflow.enums.BreakType;
 import com.dayflow.exception.BadRequestException;
+import com.dayflow.exception.ConflictException;
 import com.dayflow.exception.ForbiddenException;
 import com.dayflow.exception.ResourceNotFoundException;
 import com.dayflow.repository.AttendanceRepository;
@@ -117,18 +119,24 @@ public class AttendanceService {
         Attendance attendance = attendanceRepository.findByEmployeeIdAndDate(userId, today)
                 .orElseThrow(() -> new BadRequestException("Must check-in before starting a break."));
 
+        if (attendance.getCheckInTime() == null) {
+            throw new BadRequestException("Must check-in before starting a break.");
+        }
+
         if (attendance.getCheckOutTime() != null) {
             throw new BadRequestException("Cannot start break after check-out.");
         }
 
         Optional<WorkBreak> activeBreak = workBreakRepository.findFirstByAttendanceAndEndTimeIsNull(attendance);
         if (activeBreak.isPresent()) {
-            throw new BadRequestException("Cannot start multiple active breaks. End current break first.");
+            throw new ConflictException("Cannot start multiple active breaks. End current break first.");
         }
+
+        BreakType breakType = (request != null && request.getBreakType() != null) ? request.getBreakType() : BreakType.LUNCH;
 
         WorkBreak workBreak = WorkBreak.builder()
                 .attendance(attendance)
-                .breakType(request.getBreakType())
+                .breakType(breakType)
                 .startTime(LocalDateTime.now())
                 .build();
 
@@ -143,7 +151,11 @@ public class AttendanceService {
         LocalDate today = LocalDate.now();
 
         Attendance attendance = attendanceRepository.findByEmployeeIdAndDate(userId, today)
-                .orElseThrow(() -> new BadRequestException("No attendance record for today."));
+                .orElseThrow(() -> new BadRequestException("No attendance record for today. Must check-in first."));
+
+        if (attendance.getCheckInTime() == null) {
+            throw new BadRequestException("Must check-in before ending a break.");
+        }
 
         WorkBreak workBreak = workBreakRepository.findFirstByAttendanceAndEndTimeIsNull(attendance)
                 .orElseThrow(() -> new BadRequestException("Cannot end inactive break. No active break found."));

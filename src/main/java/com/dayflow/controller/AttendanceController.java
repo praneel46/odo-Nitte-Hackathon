@@ -4,7 +4,6 @@ import com.dayflow.dto.AttendanceDto;
 import com.dayflow.dto.StartBreakRequest;
 import com.dayflow.dto.WorkBreakDto;
 import com.dayflow.service.AttendanceService;
-import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +54,7 @@ public class AttendanceController {
     }
 
     @PostMapping("/break/start")
-    public ResponseEntity<WorkBreakDto> startBreak(@Valid @RequestBody StartBreakRequest request) {
+    public ResponseEntity<WorkBreakDto> startBreak(@RequestBody(required = false) StartBreakRequest request) {
         return ResponseEntity.ok(attendanceService.startBreak(request));
     }
 
