@@ -1,0 +1,14 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!mvnw
+!mvnw.cmd
+*.db
+*.db-journal
+*.log
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+uploads/

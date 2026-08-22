@@ -1,0 +1,15 @@
+package com.dayflow.repository;
+
+import com.dayflow.entity.EmployeeProfile;
+import com.dayflow.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface EmployeeProfileRepository extends JpaRepository<EmployeeProfile, Long> {
+    Optional<EmployeeProfile> findByUser(User user);
+    Optional<EmployeeProfile> findByUserId(Long userId);
+    List<EmployeeProfile> findByDepartmentId(Long departmentId);
+}
