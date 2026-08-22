@@ -5,14 +5,13 @@ services:
     plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
+
     envVars:
       - key: APP_JWT_SECRET
         generateValue: true
+
       - key: APP_UPLOAD_DIR
-        value: /var/data/uploads
+        value: ./uploads/documents
+
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:sqlite:/var/data/dayflow.db
-    disk:
-      name: dayflow-data
-      mountPath: /var/data
-      sizeGB: 1
+        value: jdbc:sqlite:dayflow.db

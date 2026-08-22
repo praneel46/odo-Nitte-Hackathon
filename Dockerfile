@@ -8,14 +8,14 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Persistent storage directory
-RUN mkdir -p /var/data/uploads
+# Ensure upload directory exists
+RUN mkdir -p ./uploads/documents
 
 COPY --from=build /app/target/*.jar app.jar
 
 ENV PORT=8080
-ENV SPRING_DATASOURCE_URL=jdbc:sqlite:/var/data/dayflow.db
-ENV APP_UPLOAD_DIR=/var/data/uploads
+ENV SPRING_DATASOURCE_URL=jdbc:sqlite:dayflow.db
+ENV APP_UPLOAD_DIR=./uploads/documents
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
