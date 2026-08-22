@@ -12,7 +12,7 @@ export const AppShell = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex bg-slate-50 items-center justify-center p-6">
+      <div className="min-h-screen flex bg-slate-50 dark:bg-[#0B0F19] items-center justify-center p-6 transition-colors">
         <div className="space-y-4 text-center max-w-sm w-full">
           <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold mx-auto animate-bounce">
             D
@@ -29,7 +29,7 @@ export const AppShell = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors">
       <Sidebar />
       <MobileNav isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 

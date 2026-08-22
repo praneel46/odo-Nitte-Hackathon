@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/auth';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../components/ui/Toast';
 import {
   Layers,
@@ -15,8 +17,8 @@ import {
   Eye,
   EyeOff,
   ChevronDown,
-  Sparkles,
-  CheckCircle2,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export const RegisterPage = () => {
@@ -30,6 +32,7 @@ export const RegisterPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -56,13 +59,24 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen lg:h-screen lg:max-h-screen bg-slate-50/80 flex items-center justify-center p-3 sm:p-5 lg:p-6 font-sans">
+    <div className="min-h-screen lg:h-screen lg:max-h-screen bg-slate-50/80 dark:bg-[#0B0F19] flex items-center justify-center p-3 sm:p-5 lg:p-6 font-sans relative overflow-hidden transition-colors">
+      {/* Top Right Theme Toggle */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={toggleTheme}
+          className="p-2.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 shadow-md hover:scale-105 transition-all cursor-pointer"
+          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-700" />}
+        </button>
+      </div>
+
       {/* Main Centered Split-Screen Card */}
-      <div className="w-full max-w-[1140px] lg:h-[660px] lg:max-h-[660px] bg-white rounded-3xl border border-slate-200/80 shadow-2xl shadow-blue-900/10 overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto">
+      <div className="w-full max-w-[1140px] lg:h-[660px] lg:max-h-[660px] bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl shadow-blue-900/10 dark:shadow-black/40 overflow-hidden grid grid-cols-1 lg:grid-cols-12 my-auto relative z-10">
         
         {/* LEFT BRANDING & PROMOTIONAL PANEL (45% Width) */}
         <div className="lg:col-span-5 bg-gradient-to-br from-[#1E62EC] via-[#1653D8] to-[#0E3FB5] p-6 sm:p-8 lg:p-9 text-white flex flex-col justify-between relative overflow-hidden">
-          {/* Subtle Ambient Decorative Elements */}
+          {/* Ambient Decorative Elements */}
           <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-cyan-400/20 blur-2xl pointer-events-none" />
           
@@ -138,30 +152,30 @@ export const RegisterPage = () => {
 
           {/* Product Dashboard Card Illustration */}
           <div className="relative z-10 pt-4 hidden sm:block">
-            <div className="bg-white/90 backdrop-blur-lg p-3.5 rounded-2xl border border-white/40 shadow-xl shadow-blue-950/20 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
+            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg p-3.5 rounded-2xl border border-white/40 dark:border-slate-700/60 shadow-xl shadow-blue-950/20 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-blue-600" />
-                  <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wider">Dashboard</span>
+                  <span className="text-[10px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Dashboard</span>
                 </div>
-                <span className="text-[9px] font-semibold text-slate-500">Live Workspace</span>
+                <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400">Live Workspace</span>
               </div>
               <div className="grid grid-cols-4 gap-1.5 text-center">
-                <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
                   <span className="text-[8px] font-bold text-slate-400 block uppercase">Total</span>
-                  <span className="text-xs font-black text-slate-900">248</span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white">248</span>
                 </div>
-                <div className="p-1.5 bg-emerald-50/70 rounded-lg border border-emerald-100">
-                  <span className="text-[8px] font-bold text-emerald-600 block uppercase">Present</span>
-                  <span className="text-xs font-black text-emerald-700">186</span>
+                <div className="p-1.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-lg border border-emerald-100 dark:border-emerald-900/50">
+                  <span className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 block uppercase">Present</span>
+                  <span className="text-xs font-black text-emerald-700 dark:text-emerald-300">186</span>
                 </div>
-                <div className="p-1.5 bg-amber-50/70 rounded-lg border border-amber-100">
-                  <span className="text-[8px] font-bold text-amber-600 block uppercase">On Leave</span>
-                  <span className="text-xs font-black text-amber-700">24</span>
+                <div className="p-1.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-lg border border-amber-100 dark:border-amber-900/50">
+                  <span className="text-[8px] font-bold text-amber-600 dark:text-amber-400 block uppercase">On Leave</span>
+                  <span className="text-xs font-black text-amber-700 dark:text-amber-300">24</span>
                 </div>
-                <div className="p-1.5 bg-blue-50/70 rounded-lg border border-blue-100">
-                  <span className="text-[8px] font-bold text-blue-600 block uppercase">Depts</span>
-                  <span className="text-xs font-black text-blue-700">12</span>
+                <div className="p-1.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-lg border border-blue-100 dark:border-blue-900/50">
+                  <span className="text-[8px] font-bold text-blue-600 dark:text-blue-400 block uppercase">Depts</span>
+                  <span className="text-xs font-black text-blue-700 dark:text-blue-300">12</span>
                 </div>
               </div>
             </div>
@@ -169,16 +183,16 @@ export const RegisterPage = () => {
         </div>
 
         {/* RIGHT REGISTRATION FORM PANEL (55% Width) */}
-        <div className="lg:col-span-7 p-6 sm:p-8 lg:p-9 bg-white flex flex-col justify-between overflow-y-auto">
+        <div className="lg:col-span-7 p-6 sm:p-8 lg:p-9 bg-white dark:bg-[#111827] flex flex-col justify-between overflow-y-auto">
           {/* Top Form Header */}
           <div className="text-center space-y-1 mb-4">
             <div className="w-11 h-11 rounded-2xl bg-[#1E62EC] text-white flex items-center justify-center font-bold mx-auto shadow-md shadow-blue-600/25">
               <Layers className="w-6 h-6" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-2">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-2">
               Create Dayflow Account
             </h2>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Join your organization's Dayflow workspace
             </p>
           </div>
@@ -188,11 +202,11 @@ export const RegisterPage = () => {
             {/* First Name & Last Name (Side-by-side on desktop) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   First Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -202,17 +216,17 @@ export const RegisterPage = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter first name"
-                    className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                    className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 font-medium focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Last Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -222,7 +236,7 @@ export const RegisterPage = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter last name"
-                    className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                    className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 font-medium focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                   />
                 </div>
               </div>
@@ -230,11 +244,11 @@ export const RegisterPage = () => {
 
             {/* Workplace Email */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Workplace Email <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -244,18 +258,18 @@ export const RegisterPage = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter your work email"
-                  className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 font-medium focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                 />
               </div>
             </div>
 
             {/* Employee ID */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Employee ID <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <CreditCard className="w-4 h-4" />
                 </div>
                 <input
@@ -265,18 +279,18 @@ export const RegisterPage = () => {
                   onChange={handleChange}
                   required
                   placeholder="e.g., EMP-105"
-                  className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 font-medium focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Password <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -286,12 +300,12 @@ export const RegisterPage = () => {
                   onChange={handleChange}
                   required
                   placeholder="Create a strong password"
-                  className="w-full pl-9 pr-10 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                  className="w-full pl-9 pr-10 py-2.5 bg-slate-50/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 font-medium focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -300,24 +314,24 @@ export const RegisterPage = () => {
 
             {/* Organization Role */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Organization Role <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <select
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full pl-9 pr-9 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-900 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all appearance-none cursor-pointer"
+                  className="w-full pl-9 pr-9 py-2.5 bg-slate-50/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-semibold focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all appearance-none cursor-pointer"
                 >
                   <option value="EMPLOYEE">Employee</option>
                   <option value="HR">HR Lead</option>
                   <option value="ADMIN">System Admin</option>
                 </select>
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
@@ -341,10 +355,10 @@ export const RegisterPage = () => {
           </form>
 
           {/* Divider & Login Link */}
-          <div className="mt-4 pt-3 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500 font-medium">
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Already have an account?{' '}
-              <Link to="/login" className="font-bold text-blue-600 hover:text-blue-700 hover:underline">
+              <Link to="/login" className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline">
                 Log in here
               </Link>
             </p>
