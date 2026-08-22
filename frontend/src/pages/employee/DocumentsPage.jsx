@@ -57,19 +57,7 @@ export const DocumentsPage = () => {
 
   const handleDownload = async (doc) => {
     try {
-      const token = localStorage.getItem('dayflow_token');
-      const response = await fetch(`/api/documents/${doc.id}/download`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!response.ok) throw new Error('Download failed');
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = doc.documentName || 'document';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      await documentsService.downloadDocument(doc.id, doc.documentName);
       showToast(`Downloaded ${doc.documentName}`, 'success');
     } catch (err) {
       showToast(err.message || 'Download failed', 'error');
@@ -90,10 +78,10 @@ export const DocumentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#111827] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Document Storage Vault</h2>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">Secure employee records, identification documents, and employment contracts</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Document Storage Vault</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Secure employee records, identification documents, and employment contracts</p>
         </div>
         <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)}>
           <Upload className="w-4 h-4" /> Upload Document
@@ -103,11 +91,11 @@ export const DocumentsPage = () => {
       {loading ? (
         <TableSkeleton rows={4} />
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden transition-colors">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   <th className="p-4">Document Name</th>
                   <th className="p-4">Category</th>
                   <th className="p-4">Upload Date</th>
@@ -115,18 +103,18 @@ export const DocumentsPage = () => {
                   <th className="p-4">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                 {docs.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 font-bold text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-600" />
+                  <tr key={doc.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="p-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <span>{doc.documentName}</span>
                     </td>
                     <td className="p-4">
                       <Badge variant="purple">{doc.documentType}</Badge>
                     </td>
-                    <td className="p-4 text-slate-500">{doc.uploadDate}</td>
-                    <td className="p-4 font-semibold text-slate-700">{doc.fileSizeFormatted || doc.fileSize}</td>
+                    <td className="p-4 text-slate-500 dark:text-slate-400">{doc.uploadDate}</td>
+                    <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">{doc.fileSizeFormatted || doc.fileSize}</td>
                     <td className="p-4 flex gap-2">
                       <Button variant="secondary" size="sm" onClick={() => handleDownload(doc)}>
                         <Download className="w-3.5 h-3.5" />
@@ -158,12 +146,12 @@ export const DocumentsPage = () => {
             ]}
           />
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700">Select File <span className="text-red-500">*</span></label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Select File <span className="text-red-500">*</span></label>
             <input
               type="file"
               required
               onChange={(e) => setSelectedFile(e.target.files[0])}
-              className="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 dark:file:bg-blue-950/60 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100"
             />
           </div>
           <div className="flex gap-2 pt-2">
