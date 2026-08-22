@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../components/ui/Toast';
-import { Layers, ArrowRight, Mail, Lock, Eye, EyeOff, X, Sun, Moon } from 'lucide-react';
+import { Layers, ArrowRight, Mail, Lock, Eye, EyeOff, X, Sun, Moon, ShieldCheck, ChevronDown } from 'lucide-react';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('admin@dayflow.com');
@@ -11,6 +11,7 @@ export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [showEvaluatorMenu, setShowEvaluatorMenu] = useState(false);
 
   const { login } = useAuth();
   const { isDark, toggleTheme } = useTheme();
@@ -35,6 +36,23 @@ export const LoginPage = () => {
     showToast('Please contact your HR administrator to reset your password.', 'info');
   };
 
+  const selectEvaluatorRole = (role) => {
+    if (role === 'ADMIN') {
+      setEmail('admin@dayflow.com');
+      setPassword('Admin@123');
+      showToast('System Admin credentials loaded', 'info');
+    } else if (role === 'HR') {
+      setEmail('hr1@dayflow.com');
+      setPassword('Hr@12345');
+      showToast('HR Operations credentials loaded', 'info');
+    } else if (role === 'EMPLOYEE') {
+      setEmail('employee1@dayflow.com');
+      setPassword('Emp@12345');
+      showToast('Employee credentials loaded', 'info');
+    }
+    setShowEvaluatorMenu(false);
+  };
+
   return (
     <div className="min-h-screen lg:h-screen lg:max-h-screen bg-[#F0F4FA] dark:bg-[#0B0F19] flex items-center justify-center p-3 sm:p-4 lg:p-6 relative overflow-hidden font-sans transition-colors">
       {/* Top Right Theme Toggle */}
@@ -53,7 +71,7 @@ export const LoginPage = () => {
       <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-blue-100/50 dark:bg-cyan-600/10 blur-3xl pointer-events-none" />
 
       {/* Main Split Card Container */}
-      <div className="w-full max-w-[1120px] my-auto bg-white dark:bg-[#111827] rounded-[2rem] shadow-2xl shadow-blue-900/10 dark:shadow-black/40 border border-white/80 dark:border-slate-800 grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative z-10 lg:max-h-[620px] lg:h-[620px]">
+      <div className="w-full max-w-[1120px] my-auto bg-white dark:bg-[#111827] rounded-[2rem] shadow-2xl shadow-blue-900/10 dark:shadow-black/40 border border-white/80 dark:border-slate-800 grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative z-10 lg:max-h-[630px] lg:h-[630px]">
         
         {/* LEFT PANEL — BRANDING */}
         <div className="lg:col-span-5 bg-gradient-to-br from-[#1E62EC] via-[#1A58E1] to-[#1244C8] text-white p-6 sm:p-8 lg:p-10 relative flex flex-col justify-between h-full min-h-[260px] lg:min-h-0 overflow-hidden select-none">
@@ -130,7 +148,7 @@ export const LoginPage = () => {
 
         {/* RIGHT PANEL — LOGIN */}
         <div className="lg:col-span-7 bg-white dark:bg-[#111827] p-6 sm:p-8 lg:px-12 lg:py-8 flex flex-col justify-center h-full overflow-y-auto lg:overflow-y-visible">
-          <div className="max-w-md w-full mx-auto space-y-6">
+          <div className="max-w-md w-full mx-auto space-y-5">
             
             {/* Top Logo Container & Headings */}
             <div className="text-center">
@@ -146,7 +164,7 @@ export const LoginPage = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3.5">
               
               {/* Email Field */}
               <div className="space-y-1">
@@ -232,8 +250,53 @@ export const LoginPage = () => {
               </button>
             </form>
 
+            {/* Evaluator Quick Access Popover */}
+            <div className="flex flex-col items-center pt-1 relative">
+              <button
+                type="button"
+                onClick={() => setShowEvaluatorMenu(!showEvaluatorMenu)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full text-[11px] font-bold transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span>Evaluator Quick Access</span>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
+              </button>
+
+              {showEvaluatorMenu && (
+                <div className="absolute bottom-full mb-2 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl p-2 z-50">
+                  <div className="px-2.5 py-1 text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 mb-1">
+                    Load Demo Credentials
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => selectEvaluatorRole('ADMIN')}
+                    className="w-full text-left px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span>System Admin</span>
+                    <span className="text-[10px] font-mono text-slate-400">admin@</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => selectEvaluatorRole('HR')}
+                    className="w-full text-left px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span>HR Operations</span>
+                    <span className="text-[10px] font-mono text-slate-400">hr1@</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => selectEvaluatorRole('EMPLOYEE')}
+                    className="w-full text-left px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span>Employee</span>
+                    <span className="text-[10px] font-mono text-slate-400">employee1@</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Bottom Register Prompt */}
-            <div className="text-center text-xs text-slate-500 dark:text-slate-400 font-medium pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="text-center text-xs text-slate-500 dark:text-slate-400 font-medium pt-2 border-t border-slate-100 dark:border-slate-800">
               Don't have an account?{' '}
               <Link to="/register" className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline">
                 Register Account
