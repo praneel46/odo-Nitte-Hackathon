@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Square, Coffee, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Play, Square, Coffee, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 
 export const WorkdayTrackerCard = ({ attendance, onCheckIn, onCheckOut, onStartBreak, onEndBreak, isLoading }) => {
+  const isCheckedIn = (!!attendance?.checkInTime && !attendance?.checkOutTime) || !!attendance?.checkedIn;
+  const activeBreak = attendance?.activeBreak;
+
   const [elapsedMinutes, setElapsedMinutes] = useState(attendance?.totalWorkMinutes || 0);
 
   useEffect(() => {
@@ -12,13 +15,13 @@ export const WorkdayTrackerCard = ({ attendance, onCheckIn, onCheckOut, onStartB
 
   useEffect(() => {
     let interval;
-    if (attendance?.checkedIn && !attendance?.activeBreak) {
+    if (isCheckedIn && !activeBreak) {
       interval = setInterval(() => {
         setElapsedMinutes((prev) => prev + 1);
       }, 60000);
     }
     return () => clearInterval(interval);
-  }, [attendance?.checkedIn, attendance?.activeBreak]);
+  }, [isCheckedIn, activeBreak]);
 
   const formatHours = (mins) => {
     const h = Math.floor(mins / 60);
@@ -26,8 +29,14 @@ export const WorkdayTrackerCard = ({ attendance, onCheckIn, onCheckOut, onStartB
     return `${h}h ${m}m`;
   };
 
-  const isCheckedIn = attendance?.checkedIn;
-  const activeBreak = attendance?.activeBreak;
+  const formatTimeStr = (rawTime) => {
+    if (!rawTime) return '09:00 AM';
+    if (typeof rawTime === 'string' && rawTime.includes('T')) {
+      const dateObj = new Date(rawTime);
+      return dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return rawTime;
+  };
 
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
@@ -44,7 +53,7 @@ export const WorkdayTrackerCard = ({ attendance, onCheckIn, onCheckOut, onStartB
             {formatHours(elapsedMinutes)}
           </div>
           <div className="text-xs text-slate-500 font-medium mt-1">
-            {isCheckedIn ? `Checked in at ${attendance?.checkInTime || '09:00 AM'}` : 'Start your workstation session'}
+            {isCheckedIn ? `Checked in at ${formatTimeStr(attendance?.checkInTime)}` : 'Start your workstation session'}
           </div>
         </div>
       </div>
